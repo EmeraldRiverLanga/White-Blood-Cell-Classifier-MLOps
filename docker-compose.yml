@@ -1,0 +1,33 @@
+services:
+  # --- MLflow tracking server -------------------------------------------
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.22.0
+    ports:
+      - "5000:5000"
+    volumes:
+      # Share the experiment tracking data with the host.
+      - ./mlruns:/mlruns
+      - ./mlartifacts:/mlartifacts
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri file:/mlruns
+      --default-artifact-root file:/mlartifacts
+
+  # --- Streamlit application --------------------------------------------
+  app:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      # Model location inside the container (read by app.py).
+      MODEL_DIR: /app/models
+      # Inside the compose network, the app reaches MLflow by its service name.
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      # Mount the model folder so the app reads the latest trained model
+      # without rebuilding the image.
+      - ./models:/app/models
+    depends_on:
+      - mlflow

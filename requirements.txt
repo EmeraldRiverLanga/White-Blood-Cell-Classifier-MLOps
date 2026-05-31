@@ -1,0 +1,16 @@
+# ML / deep learning
+# tensorflow-cpu: CPU-only build -> smaller Docker image, runs without a GPU
+tensorflow-cpu>=2.16,<2.20
+
+# Experiment tracking and model versioning
+mlflow>=2.18,<3.0
+
+# Metrics: precision, recall, F1-score
+scikit-learn>=1.4
+
+# User interface
+streamlit>=1.40
+
+# Pillow and numpy versions are decided by tensorflow-cpu to avoid conflicts
+pillow
+numpy<2.0
