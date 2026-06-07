@@ -116,16 +116,20 @@ wbc-classifier/
 ├── app/
 │   └── app.py              # Streamlit app — loads the champion model from MLflow
 ├── models/
-│   ├── best_model.keras    # Saved best model (local copy)
+│   ├── best_model.keras    # Local copy of the best model (the app loads from MLflow)
 │   └── class_names.json    # Class label order
 ├── data/
-│   └── combined/           # Images organized into one folder per class
+│   └── combined/           # Images organized into one folder per class (not committed)
 ├── .streamlit/
 │   └── config.toml         # Streamlit server config (host, port, headless)
+├── screenshots/            # Screenshots used in this README
 ├── Dockerfile              # Image for the Streamlit app
 ├── docker-compose.yml      # Two services: app + mlflow
 ├── .dockerignore
+├── .gitignore
 ├── requirements.txt
+├── results.md              # Experiment metrics summary
+├── darba_apraksts.pdf      # Work description (Latvian)
 └── README.md
 ```
 
@@ -137,6 +141,8 @@ The model is never hard-coded into the app. Instead:
   under the name `wbc-classifier` and tags it with the `champion` alias.
 - `app/app.py` loads the model via `models:/wbc-classifier@champion`, so it
   always uses whichever model is currently the best — no file path is hard-coded.
+  The `models/best_model.keras` file is kept only as a local backup; the running
+  app loads from the registry, not from that file.
 - The MLflow server location is read from the `MLFLOW_TRACKING_URI` environment
   variable (`http://mlflow:5000` inside Docker, `http://localhost:5000` locally),
   and the model folder from `MODEL_DIR`. Both are configurable, not hard-coded.
@@ -167,7 +173,7 @@ alias, alongside the app container's environment variables:
 
 The MLflow run details for the best model, showing logged parameters and metrics:
 
-![MLflow run details with parameters and metrics](screenshots/MLflow_run_details.JPG)
+![MLflow run details with parameters and metrics](screenshots/MLflow_run_details.jpg)
 
 ## Experiments
 
@@ -217,3 +223,14 @@ reflects performance under that standard setup.
 - **Containerization** — multi-service deployment with Docker Compose
 - **Configuration via environment variables** — no hard-coded paths or hosts
 - **Reproducibility** — clear structure, separate training and serving, pinned deps
+
+## Dataset
+
+This project uses the [Blood Cell Images](https://www.kaggle.com/datasets/paultimothymooney/blood-cells)
+dataset by Paul Mooney, available on Kaggle. It contains microscope images of
+white blood cells, organized into four classes (Eosinophil, Lymphocyte,
+Monocyte, Neutrophil). The images from the original `TRAIN` and `TEST` folders
+are combined and re-split 70/15/15 (see *A Note on Accuracy* above for why).
+
+The dataset is not included in this repository — download it from Kaggle and
+place it under `data/combined/` as described in *Prepare the data*.
